@@ -7,7 +7,7 @@ export default function Hero() {
   const years = getYearsOfExperience();
 
   return (
-    <section id="inicio" className="relative min-h-screen bg-navy overflow-hidden">
+    <section id="inicio" className="relative min-h-screen bg-navy overflow-hidden scroll-mt-28">
       {/* Background image with overlay */}
       <div className="absolute inset-0">
         <img

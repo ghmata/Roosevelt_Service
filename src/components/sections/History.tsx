@@ -40,7 +40,7 @@ export default function History() {
   const [active, setActive] = useState(0);
 
   return (
-    <section id="historia" className="section-padding bg-background">
+    <section id="historia" className="section-padding bg-background scroll-mt-28">
       <div className="container-editorial">
         <FadeIn>
           <span className="text-sm font-semibold tracking-[0.15em] uppercase text-trust">

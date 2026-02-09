@@ -15,7 +15,7 @@ export default function Contact() {
   };
 
   return (
-    <section id="contato" className="section-padding bg-background">
+    <section id="contato" className="section-padding bg-background scroll-mt-28">
       <div className="container-editorial">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
           {/* Left */}

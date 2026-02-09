@@ -21,7 +21,7 @@ export default function Services() {
   const service = SERVICES[active];
 
   return (
-    <section id="servicos" className="section-padding bg-background">
+    <section id="servicos" className="section-padding bg-background scroll-mt-28">
       <div className="container-editorial">
         <FadeIn>
           <span className="text-sm font-semibold tracking-[0.15em] uppercase text-trust">

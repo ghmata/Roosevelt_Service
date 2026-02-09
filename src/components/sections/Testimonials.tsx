@@ -11,7 +11,7 @@ export default function Testimonials() {
   const filtered = filter === "Todos" ? TESTIMONIALS : TESTIMONIALS.filter(t => t.category === filter);
 
   return (
-    <section id="avaliacoes" className="section-padding bg-muted/50">
+    <section id="avaliacoes" className="section-padding bg-muted/50 scroll-mt-28">
       <div className="container-editorial">
         <FadeIn>
           <span className="text-sm font-semibold tracking-[0.15em] uppercase text-trust">

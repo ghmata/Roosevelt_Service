@@ -46,6 +46,22 @@ export default function Header() {
     return () => window.removeEventListener('chat-state-change' as any, handleChatStateChange as any);
   }, []);
 
+  const handleMobileNavToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    setMenuOpen(false);
+    
+    // Extract ID (remove #)
+    const targetId = href.replace('#', '');
+    
+    // Small timeout to allow drawer to start closing / enable scroll
+    setTimeout(() => {
+      const element = document.getElementById(targetId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
@@ -116,7 +132,7 @@ export default function Header() {
                 <a
                   key={item.href}
                   href={item.href}
-                  onClick={() => setMenuOpen(false)}
+                  onClick={(e) => handleMobileNavToSection(e, item.href)}
                   className="text-primary-foreground/80 hover:text-primary-foreground text-base font-medium py-2"
                 >
                   {item.label}
@@ -127,7 +143,7 @@ export default function Header() {
               </div>
               <a
                 href="#contato"
-                onClick={() => setMenuOpen(false)}
+                onClick={(e) => handleMobileNavToSection(e, "#contato")}
                 className="bg-trust text-trust-foreground px-5 py-3 rounded-lg text-center font-semibold mt-2"
               >
                 Falar com um Especialista

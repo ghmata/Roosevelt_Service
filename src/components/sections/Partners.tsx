@@ -5,7 +5,7 @@ import PARTNERS from "@/content/team.json";
 
 export default function Partners() {
   return (
-    <section id="socios" className="section-padding bg-muted/50">
+    <section id="socios" className="section-padding bg-muted/50 scroll-mt-28">
       <div className="container-editorial">
         <FadeIn>
           <span className="text-sm font-semibold tracking-[0.15em] uppercase text-trust">
