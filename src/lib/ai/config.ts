@@ -127,7 +127,7 @@ export function getAIProvider() {
       apiKey: process.env.GROQ_API_KEY,
       baseURL: 'https://api.groq.com/openai/v1',
     });
-    return groq('llama-3.3-70b-versatile');
+    return groq('meta-llama/llama-4-maverick-17b-128e-instruct');
   }
 
   // Padrão: OpenAI
