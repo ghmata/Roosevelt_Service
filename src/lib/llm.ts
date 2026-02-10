@@ -1,6 +1,5 @@
 
-import dotenv from 'dotenv';
-dotenv.config();
+
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';

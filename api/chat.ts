@@ -1,33 +1,40 @@
-import { streamText, convertToModelMessages } from 'ai';
-import { getAIProvider, AI_CONFIG } from '../src/lib/ai/config';
-
 export const config = {
-  runtime: 'edge',
+    runtime: 'edge',
 };
 
+import { generateReply } from '../src/lib/llm';
+
 export default async function handler(req: Request) {
-  if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
-  }
+    if (req.method !== 'POST') {
+        return new Response('Method Not Allowed', { status: 405 });
+    }
 
-  try {
-    const { messages } = await req.json();
+    try {
+        const body = await req.json();
+        const { messages } = body;
 
-    const result = await streamText({
-      model: getAIProvider(),
-      system: AI_CONFIG.system,
-      messages: convertToModelMessages(messages),
-      temperature: AI_CONFIG.temperature,
-      maxTokens: AI_CONFIG.maxTokens,
-    });
+        if (!messages || !Array.isArray(messages)) {
+            return new Response(JSON.stringify({ error: 'Invalid payload: messages array required' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
 
-    return result.toTextStreamResponse();
+        const reply = await generateReply({ messages });
 
-  } catch (error) {
-    console.error('Error in chat API:', error);
-    return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
+        return new Response(JSON.stringify({ reply }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+    } catch (error: any) {
+        console.error('Vercel Function Error:', error);
+        return new Response(JSON.stringify({ 
+            error: 'Internal Server Error', 
+            details: error.message || String(error) 
+        }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
 }
