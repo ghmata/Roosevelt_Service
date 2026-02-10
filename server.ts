@@ -1,93 +1,67 @@
 
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
-import { createOpenAI } from '@ai-sdk/openai';
-import { streamText, pipeDataStreamToResponse } from 'ai';
-import { AI_CONFIG } from './src/lib/ai/config.ts';
-
-dotenv.config();
+import { generateReply } from './src/lib/llm.ts';
 
 const app = express();
-const port = 3001;
+const PORT = 3001;
 
-process.on('uncaughtException', (err) => {
-  console.error('🔥 CRITICAL: Uncaught Exception:', err);
-});
+import * as fs from 'fs';
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('🔥 CRITICAL: Unhandled Rejection at:', promise, 'reason:', reason);
-});
-
-app.use(cors());
+// Middleware (with file logging)
+app.use(cors()); 
 app.use(express.json());
 
-function getLocalAIProvider() {
-  const useGroq = process.env.USE_GROQ === 'true';
-  const apiKey = useGroq ? process.env.GROQ_API_KEY : process.env.OPENAI_API_KEY;
-  const baseURL = useGroq ? 'https://api.groq.com/openai/v1' : undefined;
+// Request Logger
+app.use((req, res, next) => {
+  const log = `\n[${new Date().toISOString()}] ${req.method} ${req.url}\nHeaders: ${JSON.stringify(req.headers)}\nBody: ${JSON.stringify(req.body)}\n`;
+  console.log(log);
+  fs.appendFileSync('server.log', log);
+  next();
+});
 
-  const openai = createOpenAI({
-    apiKey: apiKey,
-    baseURL: baseURL,
-  });
-
-  return openai(useGroq ? 'meta-llama/llama-4-maverick-17b-128e-instruct' : 'gpt-4o-mini');
-}
-
-app.post('/api/chat', async (req, res) => {
-  console.log('📨 Recebida requisição em /api/chat');
+// Chat Endpoint
+app.post('/api/chat', async (req: any, res: any) => {
   try {
     const { messages } = req.body;
-    
-    if (!messages) {
-      return res.status(400).json({ error: 'Missing messages in request body' });
+
+    if (!messages || !Array.isArray(messages)) {
+       const errorMsg = `Invalid payload: messages array required. Body was: ${JSON.stringify(req.body)}`;
+       console.error(errorMsg);
+       fs.appendFileSync('server.log', `Validation Error: ${errorMsg}\n`);
+       return res.status(400).json({ error: 'Invalid payload: messages array required' });
     }
 
-    console.log('🔄 Processando com streamText (AI SDK v6)...');
+    // Basic Validation
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: 'Invalid payload: messages array required' });
+    }
 
-    const model = getLocalAIProvider();
-    
-    const result = await streamText({
-        model: model,
-        messages: messages.map((m: any) => ({
-          role: m.role,
-          content: m.content
-        })),
-        system: AI_CONFIG.system,
-        temperature: AI_CONFIG.temperature,
-        maxTokens: AI_CONFIG.maxTokens,
-    });
+    // Call LLM
+    const reply = await generateReply({ messages });
 
-    // pipeDataStreamToResponse is a helper function in AI SDK v3.4+ / v6
-    // It handles headers and piping automatically
-    pipeDataStreamToResponse(res, {
-        execute: async (writer) => {
-            // mergeIntoDataStream merges the result stream into the writer
-            result.mergeIntoDataStream(writer);
-        },
-        onError: (error) => {
-            console.error('Server Stream Error:', error);
-            // We cannot send a status code here if headers are already sent
-        }
-    });
+    // Respond with JSON
+    return res.json({ reply });
 
   } catch (error: any) {
-    console.error('🔥 Erro no servidor local:', error);
-    if (!res.headersSent) {
-      res.status(500).json({ 
-        error: error.message || 'Erro interno no servidor de IA',
-        details: error.toString()
-      });
-    }
+    const errorMsg = `\n[${new Date().toISOString()}] Server Internal Error: ${error.message || String(error)}\nStack: ${error.stack || ''}\n`;
+    console.error(errorMsg);
+    fs.appendFileSync('server.log', errorMsg);
+    
+    return res.status(500).json({ 
+      error: 'Internal Server Error', 
+      details: error.message || String(error) 
+    });
   }
 });
 
+// Health Check
 app.get('/', (req, res) => {
-  res.send('🤖 Roosevelt IA Server is running!');
+  res.send('Roosevelt Chat Backend is Running 🚀');
 });
 
-app.listen(port, () => {
-  console.log(`🤖 Servidor de IA rodando localmente em http://localhost:${port}`);
-  console.log(`🧠 Modelo: ${process.env.USE_GROQ === 'true' ? 'Groq (Llama)' : 'OpenAI'}`);
+// Start Server
+app.listen(PORT, () => {
+  console.log(`✅ Servidor rodando em http://localhost:${PORT}`);
+  console.log(`🧠 Provider: ${process.env.LLM_PROVIDER || 'groq (default)'}`);
 });

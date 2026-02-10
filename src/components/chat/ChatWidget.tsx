@@ -1,4 +1,4 @@
-import { useChat } from '@ai-sdk/react';
+
 import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,13 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageSquare, X, Send, Bot, Minimize2, Maximize2, Loader2, Sparkles, Plus, Link as LinkIcon, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// --- Types ---
+interface Message {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
   <svg 
@@ -25,30 +32,13 @@ export default function ChatWidget() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // 1. Local State for robust input handling (Decoupled from SDK's internal state)
+  // Custom Chat State
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
-  
-  // 2. AI SDK Hook - Destructuring only essential values
-  const chatHelpers = useChat({
-    api: '/api/chat',
-    onResponse: (response) => {
-      console.log('📡 Chat API Response:', response.status, response.statusText);
-      console.log('📡 Headers:', Object.fromEntries(response.headers.entries()));
-    },
-    onFinish: (message) => console.log('✅ Chat finished. Last message:', message),
-    onError: (err) => {
-        console.error("❌ Chat API Error:", err);
-    },
-  }) as any;
-  
-  // Use sendMessage instead of append since runtime keys showed it exists
-  const { messages, status, error, sendMessage } = chatHelpers;
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // 3. Derived State
-  // We use the relaxed type from 'any' to avoid TS errors on 'connecting'
-  const isLoading = status === 'submitted' || status === 'streaming' || status === 'connecting';
-  
-  // 4. Handlers
+  // --- Handlers ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
@@ -56,28 +46,49 @@ export default function ChatWidget() {
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // GUARD: Prevent empty submissions
-    if (!inputValue || !inputValue.trim() || isLoading) {
-      return;
-    }
+    if (!inputValue || !inputValue.trim() || isLoading) return;
 
-    const content = inputValue;
-    setInputValue(''); // Optimistic clear
+    const userMsg: Message = { 
+        id: Date.now().toString(), 
+        role: 'user', 
+        content: inputValue 
+    };
+
+    setMessages(prev => [...prev, userMsg]);
+    setInputValue('');
+    setIsLoading(true);
+    setError(null);
 
     try {
-      console.log('🚀 Sending message via sendMessage:', content);
-      
-      if (sendMessage) {
-         // Some versions expect just the content string, others the object.
-         // Trying object first as per standard AI SDK
-         await sendMessage({ role: 'user', content });
-      } else {
-         console.error('❌ Erro Crítico: sendMessage também não existe!');
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            messages: [...messages, userMsg].map(m => ({ role: m.role, content: m.content }))
+        })
+      });
+
+      if (!response.ok) {
+          throw new Error(`Erro na API: ${response.statusText}`);
       }
+
+      const data = await response.json();
       
-    } catch (err) {
+      const assistantMsg: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: data.reply || 'Sem resposta.'
+      };
+
+      setMessages(prev => [...prev, assistantMsg]);
+
+    } catch (err: any) {
       console.error("❌ Failed to send message:", err);
-      // Optional: Restore input on error if critical
+      setError(err.message || 'Erro ao enviar mensagem');
+    } finally {
+        setIsLoading(false);
     }
   };
 
@@ -162,12 +173,6 @@ export default function ChatWidget() {
             </ScrollArea>
           </CardContent>
           {renderInput()}
-          {/* Debug Footer */}
-          <div className="bg-muted text-[10px] p-1 text-muted-foreground border-t border-border flex justify-between px-3">
-             <span>Status: {status}</span>
-             <span>Msgs: {messages?.length || 0}</span>
-             {error && <span className="text-destructive">Err: {error.message || JSON.stringify(error)}</span>}
-          </div>
         </>
       )}
     </Card>
@@ -249,17 +254,6 @@ export default function ChatWidget() {
   );
 
   function renderMessages() {
-    const getMessageText = (m: any) => {
-        if (typeof m.content === 'string' && m.content) return m.content;
-        if (Array.isArray(m.parts)) {
-            return m.parts
-                .filter((p: any) => p.type === 'text')
-                .map((p: any) => p.text)
-                .join('');
-        }
-        return '';
-    };
-
     return (
       <div className="flex flex-col gap-4 min-h-full pb-2">
       {messages.length === 0 && (
@@ -274,33 +268,21 @@ export default function ChatWidget() {
         </div>
       )}
       
-      {messages.map((m: any) => {
-        const text = getMessageText(m);
-        if (!text && m.role === 'assistant' && !isLoading) {
-            // Fallback for empty assistant messages that finished
-            return (
-                <div key={m.id} className="flex w-max max-w-[85%] flex-col gap-1 rounded-2xl px-4 py-2.5 text-sm shadow-sm bg-background border border-border text-foreground rounded-bl-none">
-                    <span className="text-muted-foreground italic">Não consegui responder agora. Tente novamente ou fale no WhatsApp.</span>
-                </div>
-            );
-        }
-        if (!text) return null;
-
-        return (
+      {messages.map((m) => (
         <div
           key={m.id}
           className={cn(
-            "flex w-max max-w-[85%] flex-col gap-1 rounded-2xl px-4 py-2.5 text-sm shadow-sm",
+            "flex w-fit max-w-[85%] flex-col gap-1 rounded-2xl px-4 py-2.5 text-sm shadow-sm whitespace-pre-wrap break-words",
             m.role === 'user' 
               ? "ml-auto bg-trust text-trust-foreground rounded-br-none" 
               : "bg-background border border-border text-foreground rounded-bl-none"
           )}
         >
-          {text}
+          {m.content}
         </div>
-      )})}
+      ))}
       
-      {isLoading && messages[messages.length - 1]?.role === 'user' && (
+      {isLoading && (
           <div className="flex w-max max-w-[85%] flex-col gap-2 rounded-2xl rounded-bl-none px-4 py-3 text-sm bg-background border border-border text-foreground shadow-sm">
           <div className="flex gap-1 items-center h-5">
             <span className="w-1.5 h-1.5 bg-foreground/40 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
@@ -312,7 +294,7 @@ export default function ChatWidget() {
       
       {error && (
         <div className="text-xs text-destructive text-center mt-2 p-3 bg-destructive/10 rounded-lg border border-destructive/20 mx-4">
-          Estamos offline no momento. Por favor, tente pelo WhatsApp.
+          {error}. Tente novamente.
         </div>
       )}
 
