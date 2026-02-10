@@ -5,34 +5,34 @@ import { Zap, Building, Monitor, FileText, Users, TrendingUp } from "lucide-reac
 
 const MILESTONES = [
   {
-    year: "Fundação",
-    title: "O início de uma tradição",
-    description: "Roosevelt Contabilidade nasce com a missão de oferecer serviços contábeis de excelência para empresas em crescimento. Desde o primeiro dia, o compromisso com a ética e a precisão definiram nossa identidade.",
+    year: "1965",
+    title: "A Fundação",
+    description: "Em 02 de janeiro, Telmo Gerhardt funda o Escritório Contábil Roosevelt. O nome homenageia sua primeira sede na Av. Franklin Roosevelt e sua admiração pelo presidente americano.",
     icon: Building,
   },
   {
-    year: "Expansão",
-    title: "Crescimento com responsabilidade",
-    description: "A carteira de clientes se expande significativamente, atendendo empresas de diferentes setores. Novas equipes especializadas são formadas para garantir atendimento consultivo de alto nível.",
+    year: "1979",
+    title: "Visão e Estratégia",
+    description: "Inauguração da sede própria na Rua Olinda. Um local escolhido estrategicamente para facilitar o acesso e oferecer maior conforto aos clientes.",
+    icon: TrendingUp,
+  },
+  {
+    year: "Legado",
+    title: "DNA Familiar",
+    description: "Uma empresa familiar onde a contabilidade corre no sangue. Os filhos de Telmo — Daniel, Deni e Rochelle — formaram-se contadores, perpetuando o orgulho e a profissão do pai.",
     icon: Users,
   },
   {
-    year: "Especialização",
-    title: "Áreas de excelência",
-    description: "Criação de departamentos especializados em Fiscal, Pessoal, Contábil e Societário — cada um liderado por profissionais com décadas de experiência prática.",
+    year: "Valores",
+    title: "Essência que Permanece",
+    description: "Após o falecimento do Sr. Telmo em 2017, ficou o exemplo de ética e honestidade. Mantemos vivos os valores de qualidade, confiança, respeito e empatia em cada atendimento.",
     icon: FileText,
   },
   {
-    year: "Modernização",
-    title: "Tecnologia sem perder a essência",
-    description: "Adoção de plataformas digitais, automação de processos e implementação de sistemas integrados — mantendo o atendimento pessoal e a proximidade com cada cliente.",
-    icon: Monitor,
-  },
-  {
     year: "Hoje",
-    title: "Tradição e inovação em equilíbrio",
-    description: `Com ${getYearsOfExperience()} anos de experiência, a Roosevelt opera com processos modernos, equipes especializadas e a mesma responsabilidade que sempre nos guiou. Cada decisão é tomada com a solidez de quem já viveu todos os cenários.`,
-    icon: TrendingUp,
+    title: "Tradição e Futuro",
+    description: `Com ${getYearsOfExperience()} anos de história, unimos a solidez de décadas de experiência à inovação constante, honrando a confiança de clientes que estão conosco desde o início.`,
+    icon: Zap,
   },
 ];
 

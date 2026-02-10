@@ -11,7 +11,7 @@ export default function DifferentialsSection() {
             Por que a Roosevelt?
           </span>
           <h2 className="text-3xl md:text-4xl font-display font-bold text-navy max-w-3xl mx-auto">
-            Mais que contabilidade, parceriapara o seu sucesso
+            Mais que contabilidade, parceria para o seu sucesso
           </h2>
         </div>
 

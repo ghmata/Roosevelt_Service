@@ -5,9 +5,10 @@
     "icon": "FileText",
     "description": "Gestão tributária completa com foco em conformidade e economia fiscal. Análise contínua de regimes e obrigações para evitar riscos e otimizar resultados.",
     "deliverables": [
-      "Apuração e controle de tributos federais, estaduais e municipais",
-      "Planejamento tributário estratégico por regime",
-      "Gestão de obrigações acessórias e SPED"
+      "Buscamos via sistema todas as notas fiscais da empresa de saída, entrada e serviço",
+      "Ao apurar os impostos, realizamos auditorias para confirmar se está pagando o mínimo possível",
+      "Enviamos as guias por e-mail com protocolo e fica disponível no aplicativo",
+      "Cliente tem acesso aos dashboards"
     ],
     "audience": "Empresas de todos os portes que buscam segurança fiscal e redução legal de carga tributária."
   },
@@ -17,9 +18,10 @@
     "icon": "Users",
     "description": "Departamento pessoal estratégico que vai além da folha de pagamento. Cuidamos de toda a relação trabalhista com compliance e eficiência.",
     "deliverables": [
-      "Folha de pagamento, encargos e benefícios",
-      "Admissões, rescisões e gestão de férias",
-      "eSocial e conformidade trabalhista completa"
+      "Empresa preenche informações variáveis na plataforma Onvio",
+      "RH faz as análises e processamentos. Avisos de divergências ou riscos",
+      "Enviamos as guias por e-mail com protocolo e fica disponível no aplicativo",
+      "Os funcionários recebem automaticamente por e-mail e tem acesso à plataforma"
     ],
     "audience": "Empresas que precisam de gestão de pessoas sem riscos trabalhistas."
   },
@@ -29,9 +31,11 @@
     "icon": "Calculator",
     "description": "Contabilidade consultiva com relatórios claros e análises que suportam decisões de negócio. Não fazemos apenas lançamentos — entregamos inteligência contábil.",
     "deliverables": [
-      "Escrituração contábil e demonstrações financeiras",
-      "Relatórios gerenciais personalizados",
-      "Análise de indicadores e suporte a decisões"
+      "Empresa envia todos os documentos e informações necessárias",
+      "Verificamos com a empresa as pendências",
+      "Fechamos a contabilidade",
+      "Publicamos os balancetes, relatórios gerenciais e fica disponível no aplicativo",
+      "Cliente tem acesso aos dashboards"
     ],
     "audience": "Empresas que enxergam a contabilidade como ferramenta estratégica de gestão."
   },
@@ -41,9 +45,9 @@
     "icon": "Building2",
     "description": "Suporte completo em estruturação societária, desde a abertura até alterações contratuais complexas. Segurança jurídica em cada movimento.",
     "deliverables": [
-      "Constituição, alteração e encerramento de empresas",
-      "Reestruturação societária e fusões",
-      "Registro em órgãos competentes e certidões"
+      "Empresa solicita alteração",
+      "Elaboramos a minuta, após ok, é assinado digitalmente e encaminhado a todos os órgãos",
+      "Publicamos todos os comprovantes no site e/ou aplicativo"
     ],
     "audience": "Empreendedores e empresas em fase de reestruturação ou expansão."
   }

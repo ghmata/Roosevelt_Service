@@ -25,7 +25,7 @@ export default function Testimonials() {
               {[1,2,3,4,5].map(s => <Star key={s} size={20} className="text-yellow-400 fill-yellow-400" />)}
             </div>
             <span className="text-muted-foreground text-sm">
-              <strong className="text-foreground">4.9</strong> · 64 avaliações no Google
+              <strong className="text-foreground">4.9</strong> · +60 avaliações no <a href="https://www.google.com/search?q=roosevelt+contabilidade&sca_esv=074920bdea4960d4&sxsrf=ANbL-n6lxPLvEviIJs3mKBivdMbONelXUw%3A1770685295203&source=hp&ei=b4OKaZ2TCuff1sQPuPzzsQY&iflsig=AFdpzrgAAAAAaYqRf9eUkhpntJbsErv-UQ512RcZJaez&oq=roo&gs_lp=Egdnd3Mtd2l6IgNyb28qAggAMgoQIxiABBgnGIoFMgQQIxgnMg0QLhiABBixAxhDGIoFMgsQABiABBixAxjJAzILEC4YgAQYxwEYrwEyCBAAGIAEGJIDMgsQABiABBiSAxiKBTIKEAAYgAQYQxiKBTIKEC4YgAQYQxiKBTIQEC4YgAQYQxjHARiKBRivAUiICVAAWJ8DcAB4AJABAJgBjwGgAakDqgEDMC4zuAEDyAEA-AEBmAIDoALFA8ICCxAuGIAEGLEDGIMBwgIIEC4YgAQYsQPCAggQABiABBixA8ICERAuGIAEGLEDGNEDGIMBGMcBwgIOEAAYgAQYsQMYgwEYigWYAwCSBwMwLjOgB6g6sgcDMC4zuAfFA8IHBTItMi4xyAcWgAgA&sclient=gws-wiz#lrd=0x951979c0beb4d5f5:0xda6fcdf0846a78ab,1,,,," target="_blank" rel="noopener noreferrer" className="underline hover:text-trust transition-colors">Google</a>
             </span>
           </div>
         </FadeIn>

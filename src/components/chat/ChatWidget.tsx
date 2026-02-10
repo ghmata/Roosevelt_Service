@@ -25,43 +25,62 @@ export default function ChatWidget() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Use manual input state as recent SDK versions might not provide it in useChat helpers
-  const [input, setInput] = useState('');
+  // 1. Local State for robust input handling (Decoupled from SDK's internal state)
+  const [inputValue, setInputValue] = useState('');
   
-  // Remove api property as it's not in the type (defaults to /api/chat)
-  // Use regenerate instead of reload
-  const { messages, status, error, regenerate, stop } = useChat({
+  // 2. AI SDK Hook - Destructuring only essential values
+  const chatHelpers = useChat({
+    api: '/api/chat',
+    onResponse: (response) => {
+      console.log('📡 Chat API Response:', response.status, response.statusText);
+      console.log('📡 Headers:', Object.fromEntries(response.headers.entries()));
+    },
+    onFinish: (message) => console.log('✅ Chat finished. Last message:', message),
     onError: (err) => {
-        console.error("Chat API Error:", err);
-    }
-  });
-
-  // Derive isLoading from status if not provided directly
-  const isLoading = status === 'submitted' || status === 'streaming';
+        console.error("❌ Chat API Error:", err);
+    },
+  }) as any;
   
-  // Custom append/sendMessage function if needed (SDK usually provides sendMessage)
-  // Casting to any to avoid potential type mismatches if SDK definitions are in flux
-  const { sendMessage } = useChat() as any; 
+  // Use sendMessage instead of append since runtime keys showed it exists
+  const { messages, status, error, sendMessage } = chatHelpers;
 
+  // 3. Derived State
+  // We use the relaxed type from 'any' to avoid TS errors on 'connecting'
+  const isLoading = status === 'submitted' || status === 'streaming' || status === 'connecting';
+  
+  // 4. Handlers
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(e.target.value);
+    setInputValue(e.target.value);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
-
-    const userMessage = { role: 'user', content: input };
-    setInput(''); // Clear input immediately
     
+    // GUARD: Prevent empty submissions
+    if (!inputValue || !inputValue.trim() || isLoading) {
+      return;
+    }
+
+    const content = inputValue;
+    setInputValue(''); // Optimistic clear
+
     try {
+      console.log('🚀 Sending message via sendMessage:', content);
+      
       if (sendMessage) {
-        await sendMessage(userMessage);
+         // Some versions expect just the content string, others the object.
+         // Trying object first as per standard AI SDK
+         await sendMessage({ role: 'user', content });
+      } else {
+         console.error('❌ Erro Crítico: sendMessage também não existe!');
       }
+      
     } catch (err) {
-      console.error("Failed to send message:", err);
+      console.error("❌ Failed to send message:", err);
+      // Optional: Restore input on error if critical
     }
   };
+
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -143,6 +162,12 @@ export default function ChatWidget() {
             </ScrollArea>
           </CardContent>
           {renderInput()}
+          {/* Debug Footer */}
+          <div className="bg-muted text-[10px] p-1 text-muted-foreground border-t border-border flex justify-between px-3">
+             <span>Status: {status}</span>
+             <span>Msgs: {messages?.length || 0}</span>
+             {error && <span className="text-destructive">Err: {error.message || JSON.stringify(error)}</span>}
+          </div>
         </>
       )}
     </Card>
@@ -187,17 +212,18 @@ export default function ChatWidget() {
 
            {/* Mobile Input */}
            <div className="p-3 bg-background border-t border-border shrink-0 pb-safe-bottom">
-             <form onSubmit={handleSubmit} className="flex w-full items-center gap-2">
+             <form onSubmit={handleSendMessage} className="flex w-full items-center gap-2">
                <Input 
-                 value={input} 
+                 value={inputValue} 
                  onChange={handleInputChange} 
                  placeholder="Digite sua dúvida..." 
                  className="flex-1 h-12 rounded-full focus-visible:ring-trust bg-muted/50 border-muted-foreground/20 px-4 text-base"
+                 disabled={isLoading}
                />
                <Button 
                  type="submit" 
                  size="icon" 
-                 disabled={isLoading || !input.trim()} 
+                 disabled={isLoading || !inputValue.trim()} 
                  className="h-12 w-12 rounded-full bg-trust hover:bg-electric text-trust-foreground shadow-sm shrink-0 transition-all"
                >
                  {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
@@ -223,6 +249,17 @@ export default function ChatWidget() {
   );
 
   function renderMessages() {
+    const getMessageText = (m: any) => {
+        if (typeof m.content === 'string' && m.content) return m.content;
+        if (Array.isArray(m.parts)) {
+            return m.parts
+                .filter((p: any) => p.type === 'text')
+                .map((p: any) => p.text)
+                .join('');
+        }
+        return '';
+    };
+
     return (
       <div className="flex flex-col gap-4 min-h-full pb-2">
       {messages.length === 0 && (
@@ -237,7 +274,19 @@ export default function ChatWidget() {
         </div>
       )}
       
-      {messages.map((m: any) => (
+      {messages.map((m: any) => {
+        const text = getMessageText(m);
+        if (!text && m.role === 'assistant' && !isLoading) {
+            // Fallback for empty assistant messages that finished
+            return (
+                <div key={m.id} className="flex w-max max-w-[85%] flex-col gap-1 rounded-2xl px-4 py-2.5 text-sm shadow-sm bg-background border border-border text-foreground rounded-bl-none">
+                    <span className="text-muted-foreground italic">Não consegui responder agora. Tente novamente ou fale no WhatsApp.</span>
+                </div>
+            );
+        }
+        if (!text) return null;
+
+        return (
         <div
           key={m.id}
           className={cn(
@@ -247,9 +296,9 @@ export default function ChatWidget() {
               : "bg-background border border-border text-foreground rounded-bl-none"
           )}
         >
-          {m.content}
+          {text}
         </div>
-      ))}
+      )})}
       
       {isLoading && messages[messages.length - 1]?.role === 'user' && (
           <div className="flex w-max max-w-[85%] flex-col gap-2 rounded-2xl rounded-bl-none px-4 py-3 text-sm bg-background border border-border text-foreground shadow-sm">
@@ -275,23 +324,27 @@ export default function ChatWidget() {
   function renderInput() {
     return (
       <CardFooter className="p-3 bg-background border-t border-border shrink-0">
-        <form onSubmit={handleSubmit} className="flex w-full items-center gap-2">
+
+        <form onSubmit={handleSendMessage} className="flex w-full items-center gap-2">
           <Input 
-            value={input} 
+            value={inputValue} 
             onChange={handleInputChange} 
             placeholder="Digite sua dúvida..." 
             className="flex-1 focus-visible:ring-trust bg-muted/50 border-muted-foreground/20"
+            disabled={isLoading}
+            autoFocus
           />
           <Button 
             type="submit" 
             size="icon" 
-            disabled={isLoading || !input.trim()} 
+            disabled={isLoading || !inputValue.trim()} 
             className="bg-trust hover:bg-electric text-trust-foreground shadow-sm shrink-0 transition-all"
           >
             {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
           </Button>
         </form>
       </CardFooter>
+
     );
   }
 
