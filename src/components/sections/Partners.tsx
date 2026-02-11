@@ -23,12 +23,12 @@ export default function Partners() {
           {PARTNERS.map((partner, i) => (
             <FadeIn key={partner.name} delay={i * 0.1}>
               <div className="bg-card rounded-2xl border border-border p-8 hover-lift h-full flex flex-col">
-                {/* Avatar placeholder */}
-                <div className="w-20 h-20 rounded-2xl bg-navy flex items-center justify-center mb-6">
-                  <span className="text-2xl font-display font-bold text-primary-foreground">
-                    {partner.name.split(" ").map(n => n[0]).slice(0, 2).join("")}
-                  </span>
-                </div>
+                {/* Avatar */}
+                <img 
+                  src={partner.image} 
+                  alt={partner.name}
+                  className="w-20 h-20 rounded-2xl object-cover mb-6"
+                />
 
                 <h3 className="font-display font-bold text-xl text-foreground">
                   {partner.name}

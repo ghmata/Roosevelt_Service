@@ -13,7 +13,7 @@ async function testV3() {
 
   try {
     const response = await client.chat.completions.create({
-      model: 'meta-llama/llama-4-maverick-17b-128e-instruct',
+      model: 'meta-llama/llama-4-scout-17b-16e-instruct',
       stream: true,
       messages: [{ role: 'user', content: 'Say hello!' }],
     });

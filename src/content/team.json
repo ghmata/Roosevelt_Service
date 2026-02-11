@@ -1,32 +1,32 @@
 [
   {
-    "name": "Carlos Eduardo Roosevelt",
-    "role": "Sócio-Diretor",
+    "name": "Daniel Gerhardt",
+    "role": "Sócio do Roosevelt desde 2003",
     "credentials": [
-      "Mais de 35 anos de atuação em consultoria contábil",
-      "Especialista em planejamento tributário estratégico",
-      "Responsável por decisões de alto impacto para clientes de grande porte"
+      "Experiência no setor fiscal, societário, gestão, comercial, financeiro, marketing e BPO financeiro",
+      "Graduado em ciências contábeis",
+      "Pós-graduado em gestão de empresas contábeis"
     ],
-    "image": "/images/team/placeholder-carlos.jpg"
+    "image": "/images/team/daniel-gerhardt.jpg"
   },
   {
-    "name": "Ana Carolina Mendes",
-    "role": "Sócia-Diretora",
+    "name": "Deni Gerhardt",
+    "role": "Sócio do Roosevelt desde 1986",
     "credentials": [
-      "Referência em gestão de departamento pessoal e trabalhista",
-      "20+ anos de experiência em compliance empresarial",
-      "Atendimento direto a empresas em processos societários complexos"
+      "Especialista em contabilidade",
+      "Graduado em ciências contábeis",
+      "Pós-graduado em custos"
     ],
-    "image": "/images/team/placeholder-ana.jpg"
+    "image": "/images/team/deni-gerhardt.jpg"
   },
   {
-    "name": "Roberto Augusto Campos",
-    "role": "Sócio-Diretor",
+    "name": "Rochelle Gerhardt Salamí",
+    "role": "Sócia do Roosevelt desde 1989",
     "credentials": [
-      "Liderança da área fiscal e de obrigações acessórias",
-      "Especialista em regimes tributários (Lucro Real, Presumido, Simples)",
-      "Condutor da transformação digital do escritório"
+      "Especialista na área societária",
+      "Graduada em ciências contábeis",
+      "Pós-graduada em gestão de empresas contábeis"
     ],
-    "image": "/images/team/placeholder-roberto.jpg"
+    "image": "/images/team/rochelle-gerhardt-salami.jpg"
   }
 ]

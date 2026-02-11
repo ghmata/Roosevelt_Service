@@ -53,7 +53,7 @@ async function callGroq(messages: ChatMessage[], temperature: number, maxTokens:
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-4-maverick-17b-128e-instruct',
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
         messages,
         temperature,
         max_tokens: maxTokens,

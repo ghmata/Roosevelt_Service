@@ -196,7 +196,11 @@ export default function ChatWidget() {
     setError(null);
 
     try {
-      const payloadMessages = [...messages, userMsg].map(m => ({ role: m.role, content: m.content }));
+      // Janela de contexto: apenas últimas 6 mensagens (3 turnos de conversa)
+      // Previne estouro de tokens após muitas mensagens
+      const allMessages = [...messages, userMsg];
+      const recentMessages = allMessages.slice(-6);
+      const payloadMessages = recentMessages.map(m => ({ role: m.role, content: m.content }));
 
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -205,7 +209,17 @@ export default function ChatWidget() {
       });
 
       if (!response.ok) {
-        throw new Error(`Erro na API: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        const errorMsg = errorData.details || response.statusText;
+        
+        // Mensagens amigáveis para erros comuns
+        if (response.status === 429) {
+          throw new Error('Muitas mensagens. Aguarde alguns segundos');
+        }
+        if (response.status === 400 && errorMsg.includes('token')) {
+          throw new Error('Conversa muito longa. Recarregue a página');
+        }
+        throw new Error(`Erro na API: ${errorMsg}`);
       }
 
       const data = await response.json();
