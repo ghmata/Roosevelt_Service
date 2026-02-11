@@ -1,4 +1,4 @@
-import { SYSTEM_PROMPT } from './ai/config.js';
+import { SYSTEM_PROMPT, AI_CONFIG } from './ai/config.js';
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -14,7 +14,7 @@ interface LLMRequest {
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 
-export async function generateReply({ provider = 'groq', messages, temperature = 0.2 }: LLMRequest): Promise<string> {
+export async function generateReply({ provider = 'groq', messages, temperature }: LLMRequest): Promise<string> {
   let selectedProvider = process.env.LLM_PROVIDER || provider;
 
   // Fallback para variável antiga USE_GROQ se LLM_PROVIDER não estiver definido
@@ -22,21 +22,22 @@ export async function generateReply({ provider = 'groq', messages, temperature =
       selectedProvider = process.env.USE_GROQ === 'true' ? 'groq' : 'openai';
   }
   
+  // Usa parâmetros centralizados do AI_CONFIG
+  const finalTemperature = temperature ?? AI_CONFIG.temperature;
+  const MAX_TOKENS = AI_CONFIG.maxTokens;
+
   // Clean user messages and inject strict system prompt
   const userMessages = messages.filter(m => m.role !== 'system');
   
   const finalMessages: ChatMessage[] = [
     { role: 'system', content: SYSTEM_PROMPT },
     ...userMessages
-  ];
-  
-  // Adjusted parameters for short, professional responses
-  const MAX_TOKENS = 400; 
+  ]; 
 
   if (selectedProvider === 'openai') {
-    return callOpenAI(finalMessages, temperature, MAX_TOKENS);
+    return callOpenAI(finalMessages, finalTemperature, MAX_TOKENS);
   } else {
-    return callGroq(finalMessages, temperature, MAX_TOKENS);
+    return callGroq(finalMessages, finalTemperature, MAX_TOKENS);
   }
 }
 
